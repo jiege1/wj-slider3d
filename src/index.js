@@ -27,6 +27,8 @@ export default class Slider3d extends React.Component {
     this.state = {
       positive: props.defaultPage,
     };
+
+    this.wheeling = false;
     this.pageNum = props.children.length;
     this.rotation = 360 / props.children.length;
   }
@@ -48,6 +50,13 @@ export default class Slider3d extends React.Component {
         this.switchPage('next');
         this.autoPlay();
       }, timeout);
+    }
+  }
+
+  stopAutoPlay() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = null;
     }
   }
 
@@ -81,31 +90,39 @@ export default class Slider3d extends React.Component {
    * @param direction {'prev' | 'next'}
    */
   switchPage(direction) {
-    const { positive } = this.state;
-    let nextChangePositive = positive;
+    if (!this.wheeling) {
+      const { positive } = this.state;
+      const { speed } = this.props;
+      let nextChangePositive = positive;
 
-    if (direction === 'prev') {
-      nextChangePositive = positive - 1;
-      this.setState({
-        positive: nextChangePositive
-      });
+      if (direction === 'prev') {
+        nextChangePositive = positive - 1;
+        this.setState({
+          positive: nextChangePositive
+        });
+        this.wheeling = true;
+      }
+
+      if (direction === 'next') {
+        nextChangePositive = positive + 1;
+        this.setState({
+          positive: nextChangePositive
+        });
+        this.wheeling = true;
+      }
+
+      let nextPageIndex = nextChangePositive < 0 ?
+        nextChangePositive % this.pageNum + 4 :
+        nextChangePositive % this.pageNum;
+
+      if (nextPageIndex === 4) nextPageIndex = 0;
+
+      this.props.onWillChange(nextPageIndex);
+      this.autoPlay();
+      setTimeout(() => {
+        this.wheeling = false;
+      }, speed);
     }
-
-    if (direction === 'next') {
-      nextChangePositive = positive + 1;
-      this.setState({
-        positive: nextChangePositive
-      });
-    }
-
-    let nextPageIndex = nextChangePositive < 0 ?
-      nextChangePositive % this.pageNum + 4 :
-      nextChangePositive % this.pageNum;
-
-    if (nextPageIndex === 4) nextPageIndex = 0;
-
-    this.props.onWillChange(nextPageIndex);
-    this.autoPlay();
   }
 
   render() {

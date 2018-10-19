@@ -7,7 +7,7 @@
     "flow": "yarn run flow",
     "lint": "./node_modules/.bin/eslint --fix src"
   },
-  "repository": "",
+  "repository": "https://github.com/jiege1/wj-slider3d",
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.2.2",
